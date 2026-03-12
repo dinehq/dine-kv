@@ -23,15 +23,19 @@ A Claude Code skill for iterative creative exploration — generating brand-comp
 
 ## Install
 
+Skills directory: `~/.claude/skills/` for Claude Code, `~/.codex/skills/` for Codex. Replace `SKILLS_DIR` below with your path.
+
 ```bash
-mkdir -p ~/.claude/skills
+SKILLS_DIR=~/.claude/skills   # or ~/.codex/skills for Codex
+mkdir -p "$SKILLS_DIR"
 
 # 1. Install fal-generate (dependency)
 git clone https://github.com/fal-ai-community/skills.git /tmp/fal-skills
-cp -r /tmp/fal-skills/fal-generate ~/.claude/skills/fal-generate
+cp -r /tmp/fal-skills/skills/claude.ai/fal-generate "$SKILLS_DIR/fal-generate"
+rm -rf /tmp/fal-skills
 
 # 2. Install creative-explore
-git clone https://github.com/imneway/creative-explore.git ~/.claude/skills/creative-explore
+git clone https://github.com/imneway/creative-explore.git "$SKILLS_DIR/creative-explore"
 ```
 
 After installing, restart Claude Code / Codex for the skills to take effect.
