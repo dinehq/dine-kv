@@ -14,7 +14,7 @@ A Claude Code skill for iterative creative exploration — generating brand-comp
 ## Prerequisites
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) or [Claude Code via Codex](https://docs.anthropic.com/en/docs/claude-code)
-- **fal-generate skill** — this skill depends on `fal-generate` for image generation scripts (`generate.sh`, `upload.sh`, `search-models.sh`). It must be installed at `~/.claude/skills/fal-generate/`. See [fal-generate setup](#fal-generate-setup) below.
+- [fal-generate](https://github.com/fal-ai-community/skills) skill — install from fal's official skills repo (see below)
 - fal.ai API key in your shell profile:
   ```bash
   # Add to ~/.zshrc or ~/.bashrc
@@ -25,35 +25,16 @@ A Claude Code skill for iterative creative exploration — generating brand-comp
 
 ```bash
 mkdir -p ~/.claude/skills
+
+# 1. Install fal-generate (dependency)
+git clone https://github.com/fal-ai-community/skills.git /tmp/fal-skills
+cp -r /tmp/fal-skills/fal-generate ~/.claude/skills/fal-generate
+
+# 2. Install creative-explore
 git clone https://github.com/imneway/creative-explore.git ~/.claude/skills/creative-explore
 ```
 
-After installing, restart Claude Code / Codex for the skill to take effect.
-
-### fal-generate Setup
-
-This skill calls scripts from `~/.claude/skills/fal-generate/scripts/`:
-
-- `generate.sh` — text-to-image generation
-- `upload.sh` — upload local images to fal CDN for use as references
-- `search-models.sh` — search available fal.ai models
-
-The expected directory structure:
-
-```
-~/.claude/skills/
-├── creative-explore/    # This skill
-│   ├── SKILL.md
-│   └── references/
-└── fal-generate/        # Dependency — must exist at this exact path
-    ├── SKILL.md
-    └── scripts/
-        ├── generate.sh
-        ├── upload.sh
-        └── search-models.sh
-```
-
-If you don't have `fal-generate`, you'll need to create it or obtain it separately. The skill will not work without these scripts in place.
+After installing, restart Claude Code / Codex for the skills to take effect.
 
 ## Usage
 
