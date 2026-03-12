@@ -1,4 +1,4 @@
-# Creative Explore
+# Dine KV
 
 A Claude Code skill for iterative creative exploration — generating brand-compliant marketing and operational images using AI image models.
 
@@ -34,8 +34,8 @@ git clone https://github.com/fal-ai-community/skills.git /tmp/fal-skills
 cp -r /tmp/fal-skills/skills/claude.ai/fal-generate "$SKILLS_DIR/fal-generate"
 rm -rf /tmp/fal-skills
 
-# 2. Install creative-explore
-git clone https://github.com/imneway/creative-explore.git "$SKILLS_DIR/creative-explore"
+# 2. Install dine-kv
+git clone https://github.com/imneway/dine-kv.git "$SKILLS_DIR/dine-kv"
 ```
 
 After installing, restart Claude Code / Codex for the skills to take effect.

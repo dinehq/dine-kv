@@ -1,5 +1,5 @@
 ---
-name: creative-explore
+name: dine-kv
 description: Iterative creative exploration for generating brand-compliant marketing and operational images using AI. Use this skill whenever the user wants to create KV designs, marketing visuals, operational graphics, event posters, or any brand-compliant image assets. Also trigger when the user provides brand rules together with image generation needs, mentions "creative exploration", asks to iterate on generated visuals, or wants to brainstorm visual directions for a campaign. Works with any brand that has a rules document.
 ---
 
@@ -169,14 +169,14 @@ You need a fal.ai API key:
 
 Use the data-driven template at `references/preview-template.html`. Speed is critical — don't hand-write HTML for each round. Instead:
 
-1. Write a JSON data file to `/tmp/creative-explore/data.js`
-2. Copy the template to `/tmp/creative-explore/index.html` (once per session)
+1. Write a JSON data file to `/tmp/dine-kv/data.js`
+2. Copy the template to `/tmp/dine-kv/index.html` (once per session)
 3. Open in browser — the template renders everything from the JSON
 
 ### Writing the data file
 
 ```javascript
-// /tmp/creative-explore/data.js
+// /tmp/dine-kv/data.js
 const DATA = {
   title: "Brand - Task Title",
   subtitle: "Round N | context",
@@ -205,8 +205,8 @@ For directions with no reference images, set `inputs: []` and add `model: "nano-
 ### Serve locally
 
 ```bash
-mkdir -p /tmp/creative-explore
-cd /tmp/creative-explore && python3 -m http.server 8899 &
+mkdir -p /tmp/dine-kv
+cd /tmp/dine-kv && python3 -m http.server 8899 &
 open "http://localhost:8899/round{N}.html"
 ```
 
