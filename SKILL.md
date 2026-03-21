@@ -35,9 +35,11 @@ The first round is about **breadth and inspiration**.
 
    Push beyond the obvious. Consider metaphors, abstract interpretations, cultural references, unexpected visual approaches.
 
-2. **Generate quick drafts** using `nano-banana-2`. If the user provided reference images, use edit mode; otherwise use `generate.sh` for text-to-image. One image per direction. **Generate all images in parallel** — see Parallel Generation section below.
+2. **Write HTML preview first** — plan file names for each direction (e.g. `d1-direction-name.png`). Write `preview.html` with all direction info (names, descriptions, prompts) using those planned file paths. The template has a loading placeholder that pulses until the image file appears. Open the preview immediately: `open preview.html`. The user sees the full layout with "Generating..." placeholders while images are being created.
 
-3. **MUST: Present in HTML preview** — after generating images, ALWAYS create a self-contained HTML preview file and open it in the browser. This is not optional. Use the inline approach described in the HTML Preview section below.
+3. **Generate quick drafts in parallel** — using `nano-banana-2`. If the user provided reference images, use edit mode; otherwise use `generate.sh` for text-to-image. One image per direction. **All in one Bash call with background jobs** — see Parallel Generation section below.
+
+4. **Download images to planned paths** — after `wait`, extract URLs from JSON results and download all images in parallel to the file names used in step 2. The browser auto-retries every 3 seconds, so images appear automatically as they land on disk.
 
 5. **Archive** the round.
 
@@ -228,9 +230,18 @@ There are two modes depending on the environment:
 
 ### Normal mode (CLI)
 
-1. Download all generated images (and input reference images) to the round's archive directory with `curl -o`
-2. Write `preview.html` in the same directory, using **relative paths** for all images
-3. Open it: `open "{path}/preview.html"`
+The preview is written **before** images are generated, using planned file paths. The template includes auto-retry JS that polls for images every 3 seconds.
+
+1. Plan file names: `d1-direction-name.png`, `d2-direction-name.png`, etc.
+2. Write `preview.html` with direction info + planned relative paths → `open preview.html`
+3. Run parallel image generation (see Parallel Generation)
+4. After `wait`, download all images in parallel to the planned file paths:
+   ```bash
+   curl -sL "https://...cdn-url..." -o d1-direction-name.png &
+   curl -sL "https://...cdn-url..." -o d2-direction-name.png &
+   wait
+   ```
+5. Images auto-appear in the browser (the template retries broken images every 3s)
 
 #### Image file naming
 
