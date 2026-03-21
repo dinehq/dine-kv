@@ -17,8 +17,7 @@ On the first use in a session:
 
 1. **Workspace path** — Ask: "Is the current directory your project workspace? If not, please tell me the path."
 2. **Brand rules** — Look for a brand rules markdown file (e.g. `*-Brand-Rules.md`). Read it thoroughly — colors, typography, visual language, constraints, and any AI prompt guidelines.
-3. **Brand assets** — Scan the `assets/` directory. Read each image to understand what's available (patterns, icons, logos, illustrations). Build a mental inventory — you'll use these automatically later.
-4. **Brand colors** — Extract the primary brand colors from the rules for use in the HTML preview.
+3. **Brand colors** — Extract the primary brand colors from the rules for use in the HTML preview.
 5. **Task requirements** — Ask the user for the brief. Also let them know: "You can also share a task requirements doc (Feishu/Lark URL works), reference images, or any style notes."
 
 If the user provides a Feishu/Lark wiki URL, extract `document_id` from `larksuite.com/wiki/{document_id}` and read with `mcp__claude_ai_Feishu__read_document_content`.
@@ -36,32 +35,13 @@ The first round is about **breadth and inspiration**.
 
    Push beyond the obvious. Consider metaphors, abstract interpretations, cultural references, unexpected visual approaches.
 
-2. **Vary reference inputs across directions** — maximize divergence by using different reference combos. Adapt the allocation based on what's available:
-
-   **With user refs + brand assets (typical case, 7 directions):**
-   - ~3: user ref + different brand asset each (Pattern 01, 03, Icons, etc.) → edit mode
-   - ~2: user ref only OR brand asset only → edit mode
-   - ~2: no references at all → text-to-image mode
-
-   **With user refs but no brand assets:**
-   - ~4: user ref → edit mode
-   - ~3: no references → text-to-image mode
-
-   **With brand assets but no user refs:**
-   - ~4: different brand asset each → edit mode
-   - ~3: no references → text-to-image mode
-
-   **Multiple user refs (2+):** Reduce brand asset usage — the user's refs already provide variety. Mix different user refs across directions. Use ~1-2 pure text-to-image for baseline.
-
-   **No refs and no assets:** All text-to-image mode.
-
-3. **Generate quick drafts** using `nano-banana-2`. Use edit mode for directions with references, `generate.sh` for pure text-to-image. One image per direction. Run all in parallel.
+2. **Generate quick drafts** using `nano-banana-2`. If the user provided reference images, use edit mode; otherwise use `generate.sh` for text-to-image. One image per direction. Run all in parallel.
 
 4. **MUST: Present in HTML preview** — after generating images, ALWAYS create a self-contained HTML preview file and open it in the browser. This is not optional. Use the inline approach described in the HTML Preview section below.
 
 5. **Archive** the round.
 
-6. **Summarize** what reference combos were used for each direction, then ask: "Which directions to explore further? And for next round, do you want more/fewer reference-guided vs pure-prompt directions?"
+6. **Summarize** each direction briefly, then ask: "Which directions to explore further?"
 
 ### Subsequent Rounds: Converge or Diverge
 
@@ -295,6 +275,5 @@ Adapt to the brand's visual language (read the brand rules first):
 - **Bilingual names**: Help multilingual teams — "Gateway (门户)", "Constellation (星座)"
 
 Common pitfalls:
-- Not using available brand assets as references — always check the assets directory first
 - Forgetting to specify background lightness — many models default to dark
 - Over-describing — shorter, focused prompts often work better
