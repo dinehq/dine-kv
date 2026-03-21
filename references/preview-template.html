@@ -29,7 +29,11 @@
 </head>
 <body>
 <div id="app"></div>
-<script src="data.js"></script>
+<script>
+// ── INLINE DATA HERE ──
+// Replace this placeholder with the actual DATA object for each round.
+const DATA = { title: "", subtitle: "", accent: "#666", colors: [], directions: [] };
+</script>
 <script>
 const d=DATA,a=d.accent||'#666';
 let h=`<h1>${d.title}</h1><div class="sub">${d.subtitle}</div>`;

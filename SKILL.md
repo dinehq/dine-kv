@@ -57,7 +57,7 @@ The first round is about **breadth and inspiration**.
 
 3. **Generate quick drafts** using `nano-banana-2`. Use edit mode for directions with references, `generate.sh` for pure text-to-image. One image per direction. Run all in parallel.
 
-4. **Present in HTML preview** using the data-driven template (see HTML Preview). Just write a JSON data file — the template renders it instantly.
+4. **MUST: Present in HTML preview** — after generating images, ALWAYS create a self-contained HTML preview file and open it in the browser. This is not optional. Use the inline approach described in the HTML Preview section below.
 
 5. **Archive** the round.
 
@@ -167,60 +167,122 @@ You need a fal.ai API key:
 
 ## HTML Preview
 
-Use the data-driven template at `references/preview-template.html`. Speed is critical — don't hand-write HTML for each round. Instead:
+**IMPORTANT**: Always generate the HTML preview after each round of image generation. This is a core deliverable, not an optional step.
 
-1. Write a JSON data file to `/tmp/dine-kv/data.js`
-2. Copy the template to `/tmp/dine-kv/index.html` (once per session)
-3. Open in browser — the template renders everything from the JSON
+Write a single self-contained HTML file with DATA inlined — no external data.js, no server.
 
-### Writing the data file
+There are two modes depending on the environment:
+
+| Environment | Image strategy | How to open |
+|---|---|---|
+| **Normal (CLI / terminal)** | Relative file paths | `open preview.html` |
+| **Claude cowork (sidebar sandbox)** | Base64 data URI inline | Write the HTML file, it renders in the sidebar preview |
+
+**How to detect**: If the user is working in Claude cowork / the conversation has a sidebar preview panel, use the cowork mode. Otherwise use normal mode.
+
+### Normal mode (CLI)
+
+1. Download all generated images (and input reference images) to the round's archive directory with `curl -o`
+2. Write `preview.html` in the same directory, using **relative paths** for all images
+3. Open it: `open "{path}/preview.html"`
+
+#### Image file naming
+
+```
+round1/
+  d1-direction-name.png      # generated image for direction 1
+  d2-direction-name.png      # generated image for direction 2
+  ref-user-style.jpg          # input reference image
+  ref-pattern-01.png          # input reference image
+  preview.html                # self-contained preview
+```
+
+#### DATA example (relative paths)
 
 ```javascript
-// /tmp/dine-kv/data.js
+directions: [{
+  image: "d1-direction-name.png",
+  inputs: [
+    { url: "ref-user-style.jpg", label: "User ref: style" },
+    { url: "ref-pattern-01.png", label: "Pattern 01" }
+  ],
+  // ...
+}]
+```
+
+### Cowork mode (sidebar sandbox)
+
+The sidebar sandbox cannot access local files. Embed all images as base64 data URIs.
+
+1. Download images to the archive directory (same as normal mode)
+2. Convert each image to base64 data URI: `base64 -i image.png | tr -d '\n'`
+3. Use `data:image/png;base64,...` URLs in the DATA object
+4. Write `preview.html` — it will render directly in the sidebar
+
+#### DATA example (base64)
+
+```javascript
+directions: [{
+  image: "data:image/png;base64,iVBORw0KGgo...",
+  inputs: [
+    { url: "data:image/jpeg;base64,/9j/4AAQ...", label: "User ref: style" },
+    { url: "data:image/png;base64,iVBORw0K...", label: "Pattern 01" }
+  ],
+  // ...
+}]
+```
+
+Tip: run all `base64` conversions in parallel for speed.
+
+### How to write the file
+
+Take the template from `references/preview-template.html` and inline the DATA object:
+
+```html
+<!-- copy the <head> and <style> from preview-template.html, then: -->
+<body>
+<div id="app"></div>
+<script>
 const DATA = {
   title: "Brand - Task Title",
   subtitle: "Round N | context",
-  accent: "#935BFF",  // brand color or "#666" for neutral
-  colors: ["#935BFF", "#C4B5FF", "#D8D0FF"],  // optional brand palette
+  accent: "#935BFF",
+  colors: ["#935BFF", "#C4B5FF", "#D8D0FF"],
   directions: [
     {
       name: "1. Direction Name (中文名)",
       meta: "edit mode | User ref + Pattern 01",
       desc: "One sentence concept description.",
-      image: "https://...generated.png",
+      image: "d1-direction-name.png",  // or data:image/png;base64,... in cowork mode
       model: "nano-banana-2/edit",
       inputs: [
-        { url: "https://...ref.jpg", label: "User ref: style" },
-        { url: "https://...pattern.png", label: "Pattern 01" }
+        { url: "ref-user-style.jpg", label: "User ref: style" },
+        { url: "ref-pattern-01.png", label: "Pattern 01" }
       ],
       prompt: "The full prompt used..."
     }
-    // ... more directions
   ]
 };
+</script>
+<script>
+/* rendering code from preview-template.html */
+const d=DATA,a=d.accent||'#666';
+// ... (copy the rest of the rendering script from the template)
+</script>
+</body>
 ```
 
-For directions with no reference images, set `inputs: []` and add `model: "nano-banana-2 (text-to-image)"`.
+For directions with no reference images, set `inputs: []` and `model: "nano-banana-2 (text-to-image)"`.
 
-### Serve locally
-
-```bash
-mkdir -p /tmp/dine-kv
-cd /tmp/dine-kv && python3 -m http.server 8899 &
-open "http://localhost:8899/round{N}.html"
-```
-
-See `references/html-template.md` for the base template.
+See `references/preview-template.html` for the full template and rendering script.
 
 ## Archive
 
-After each round, save to the workspace:
+The round directory IS the archive — images are already downloaded there with the preview HTML:
 
 ```
 {workspace}/{brand or project name}/{yyyy-mm-dd}-{task title}/round{N}/
 ```
-
-Download images from fal CDN with `curl -o` and copy the HTML preview file.
 
 ## Prompt Writing Patterns
 
