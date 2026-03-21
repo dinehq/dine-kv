@@ -35,9 +35,9 @@ The first round is about **breadth and inspiration**.
 
    Push beyond the obvious. Consider metaphors, abstract interpretations, cultural references, unexpected visual approaches.
 
-2. **Generate quick drafts** using `nano-banana-2`. If the user provided reference images, use edit mode; otherwise use `generate.sh` for text-to-image. One image per direction. Run all in parallel.
+2. **Generate quick drafts** using `nano-banana-2`. If the user provided reference images, use edit mode; otherwise use `generate.sh` for text-to-image. One image per direction. **Generate all images in parallel** — see Parallel Generation section below.
 
-4. **MUST: Present in HTML preview** — after generating images, ALWAYS create a self-contained HTML preview file and open it in the browser. This is not optional. Use the inline approach described in the HTML Preview section below.
+3. **MUST: Present in HTML preview** — after generating images, ALWAYS create a self-contained HTML preview file and open it in the browser. This is not optional. Use the inline approach described in the HTML Preview section below.
 
 5. **Archive** the round.
 
@@ -134,6 +134,72 @@ bash ~/.claude/skills/fal-generate/scripts/generate.sh \
   --model "fal-ai/nano-banana-2" \
   --size landscape
 ```
+
+## Parallel Generation
+
+**Critical**: Never generate images one by one. Always run all generations concurrently in a single Bash call using background processes.
+
+### Text-to-image (generate.sh)
+
+Run all `generate.sh` calls as background jobs in one Bash command, then `wait` for all to finish:
+
+```bash
+bash ~/.claude/skills/fal-generate/scripts/generate.sh \
+  --prompt "direction 1 prompt..." --model "fal-ai/nano-banana-2" --size landscape \
+  > /tmp/dine-kv/d1.json 2>/tmp/dine-kv/d1.log &
+
+bash ~/.claude/skills/fal-generate/scripts/generate.sh \
+  --prompt "direction 2 prompt..." --model "fal-ai/nano-banana-2" --size landscape \
+  > /tmp/dine-kv/d2.json 2>/tmp/dine-kv/d2.log &
+
+bash ~/.claude/skills/fal-generate/scripts/generate.sh \
+  --prompt "direction 3 prompt..." --model "fal-ai/nano-banana-2" --size landscape \
+  > /tmp/dine-kv/d3.json 2>/tmp/dine-kv/d3.log &
+
+wait
+echo "All done"
+```
+
+### Edit mode (curl)
+
+Same pattern — run all curl calls as background jobs:
+
+```bash
+curl -s -X POST "https://fal.run/fal-ai/nano-banana-2/edit" \
+  -H "Authorization: Key $FAL_KEY" -H "Content-Type: application/json" \
+  -d '{"prompt":"...","image_urls":["..."],"aspect_ratio":"16:9","num_images":1}' \
+  > /tmp/dine-kv/d1.json &
+
+curl -s -X POST "https://fal.run/fal-ai/nano-banana-2/edit" \
+  -H "Authorization: Key $FAL_KEY" -H "Content-Type: application/json" \
+  -d '{"prompt":"...","image_urls":["..."],"aspect_ratio":"16:9","num_images":1}' \
+  > /tmp/dine-kv/d2.json &
+
+wait
+echo "All done"
+```
+
+### Mixed (text-to-image + edit in one batch)
+
+Combine both types in a single Bash call — they all run in parallel:
+
+```bash
+# text-to-image directions
+bash ~/.claude/skills/fal-generate/scripts/generate.sh \
+  --prompt "..." --model "fal-ai/nano-banana-2" --size landscape \
+  > /tmp/dine-kv/d1.json 2>/tmp/dine-kv/d1.log &
+
+# edit mode directions
+curl -s -X POST "https://fal.run/fal-ai/nano-banana-2/edit" \
+  -H "Authorization: Key $FAL_KEY" -H "Content-Type: application/json" \
+  -d '{"prompt":"...","image_urls":["..."],"aspect_ratio":"16:9","num_images":1}' \
+  > /tmp/dine-kv/d2.json &
+
+wait
+echo "All done"
+```
+
+After `wait`, read each JSON file to extract the image URLs and proceed to the HTML preview step.
 
 ## FAL_KEY Setup
 
